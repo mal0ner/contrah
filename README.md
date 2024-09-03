@@ -31,16 +31,16 @@ python main.py
 
 In the context of search algorithms, informed refers to the ability for the problem solving agent to derive some notion of its distance from the goal. This distance measure is at the core of every informed search algorithm and is given by a heuristic function h(𝑛)
 
-Heuristic functions come in a large variety of forms, the most recognisable of which may be the Manhattan (city-block) and Euclidean distances, known as the L1 and L2 norms respectively which describe the distance between points . [1]
+Heuristic functions come in a large variety of forms, the most recognisable of which may be the Manhattan (city-block) and Euclidean distances, known as the L1 and L2 norms respectively which describe the distance between points . [^1]
 
 ## 1.2 A\* (Greedy Best-First Search)
 
-For A\*, the evaluation function $f(n)$, by which we assign priority to the expansion of some node 𝑛 is given by $f(n) = g(n) + h(n)$. Where $𝑔(𝑛)$ is the cumulative cost of actions taken to reach the current state from the initial state, and $h(𝑛)$ is the distance to the goal state, provided by some heuristic function. [1]
+For A\*, the evaluation function $f(n)$, by which we assign priority to the expansion of some node 𝑛 is given by $f(n) = g(n) + h(n)$. Where $𝑔(𝑛)$ is the cumulative cost of actions taken to reach the current state from the initial state, and $h(𝑛)$ is the distance to the goal state, provided by some heuristic function. [^1]
 
 ## 1.3 Contraction-Hierarchies
 
 Contraction Hierarchies is a method for quantifying some measure of a node’s importance to traversal and then ordering the nodes in a network based on that metric. In theory, if an optimal ordering of nodes can be found, then, despite the somewhat overwhelming cost of pre-processing, subsequent queries to the graph can leverage the order to drastically reduce the average search-space required to find optimal-cost routes between points.
-In his excellent project paper on the subject, John Lazarsfeld [2] equates the procedure as being akin to zooming out on Google maps. As you decrease the fidelity of the picture, smaller, less relevant streets begin to fade out of view in favour of large junctions, highways, and interstate roads. These larger streets often form a large portion of the driving during an average trip and including them is usually more favourable than travelling the same distance over many much smaller roads (less capacity, lower speed
+In his excellent project paper on the subject, John Lazarsfeld [^2] equates the procedure as being akin to zooming out on Google maps. As you decrease the fidelity of the picture, smaller, less relevant streets begin to fade out of view in favour of large junctions, highways, and interstate roads. These larger streets often form a large portion of the driving during an average trip and including them is usually more favourable than travelling the same distance over many much smaller roads (less capacity, lower speed
 limit etc.).
 In practice, categorising the importance of nodes in a network and creating Google’s ‘Big yellow roads’ comes down artificially reducing the search space of a network by adding additional edges between nodes in a process known as contraction.
 
@@ -64,12 +64,12 @@ This process is repeated until all nodes in the graph have been contracted and r
 
 The **order** in which the nodes were contracted dictates their relative importance and is calculated by simulating contraction without directly modifying the graph, then noting the number of shortcuts that would have been added (edge difference). Generally, we aim to prioritise and thus contract early in the process nodes which have a lower edge difference.
 
-Complete node contraction on the graph concludes the pre-processing segment of CH. Querying the resulting graph (union of the original graph 𝐺 and overlay graph 𝐺′ containing the shortcuts) is then a matter of running two complete Dijkstra’s on following modified sub-graphs of 𝐺′: [2]
+Complete node contraction on the graph concludes the pre-processing segment of CH. Querying the resulting graph (union of the original graph 𝐺 and overlay graph 𝐺′ containing the shortcuts) is then a matter of running two complete Dijkstra’s on following modified sub-graphs of 𝐺′: [^2]
 
 - $G'_D$: Downward graph from vertex $v$ containing only nodes and edges towards nodes where $v$ contracted earlier.
 - $G'_U$: Upward graph from vertex $v$ containing only nodes and edges towards nodes which were contracted before $v$.
 
-**Note:** unique ordering of nodes means that $G'_D \cup G'_U$ contains the whole search space of $G'$ [2].
+**Note:** unique ordering of nodes means that $G'_D \cup G'_U$ contains the whole search space of $G'$ [^2].
 **Note:** For a fully bi-directional / symmetric $G'$ starting at vertex $v$, $G'_D = G'_U$.
 
 Once the complete searches are finished, the solution is found by taking the minimum sum of path costs across every node in the intersection of nodes reached in both searches. This node can then be used to back-trace paths in the respective search sub-graphs using parent-edge and parent-node pointers in the node objects
@@ -122,7 +122,7 @@ Between the attributes and methods shown above, all operations and features nece
 
 After encountering some difficulty in constructing a working and bug-free graph data-structure, particularly in handling the deletion of nodes and edges in the graph class, the A\* algorithm itself was surprisingly easy to implement.
 
-Using [1]’s excellent breakdown of Greedy-Best-First search \[ch. 3.5.1, pp. 103-107\] as a foundation, A\* can be defined as a derived GBFS with an evaluation function:
+Using [^1]’s excellent breakdown of Greedy-Best-First search \[ch. 3.5.1, pp. 103-107\] as a foundation, A\* can be defined as a derived GBFS with an evaluation function:
 $$f(n) = g(n) + h(n)$$
 
 ## 2.3 Putting it together:
@@ -137,9 +137,9 @@ Python’s built-in min-heap Priority Queue allows for simple prioritisation of 
 
 ## 2.4 Heuristics: How is A\* affected by choice of heuristic?
 
-Russell and Norvig [1] explain in their chapter on informed search algorithms that A\* is complete1, but only conditionally optimal. Complete-ness of the algorithm is evident seeing the above code – given initialisation of $g_{initial}(n) = \infty, \forall n \in V$, all nodes in a graph connected from the source node will pass the $g_{temp} < g(n)$ test at least once and be appended to the frontier. Cost-optimality is determined by the heuristic, particularly its **admissibility**,
+Russell and Norvig [^1] explain in their chapter on informed search algorithms that A\* is complete1, but only conditionally optimal. Complete-ness of the algorithm is evident seeing the above code – given initialisation of $g_{initial}(n) = \infty, \forall n \in V$, all nodes in a graph connected from the source node will pass the $g_{temp} < g(n)$ test at least once and be appended to the frontier. Cost-optimality is determined by the heuristic, particularly its **admissibility**,
 
-> "an admissable heuristic is one that never over-estimates the cost to reach the goal" [1] (given existing solution or finite search space, and $\epsilon > 0$ where $\epsilon$ is lower bound for action cost [1])
+> "an admissable heuristic is one that never over-estimates the cost to reach the goal" [^1] (given existing solution or finite search space, and $\epsilon > 0$ where $\epsilon$ is lower bound for action cost [^1])
 
 I evaluated the performance of A\* using three different heuristics:
 
@@ -147,7 +147,7 @@ I evaluated the performance of A\* using three different heuristics:
 - Euclidean Distance (L2 norm): $\sqrt{\sum^n_{i=1}(q_i-p_i)^2}$
 - Haversine Distance (Great circle distance): $hav(\theta) = sin^2(\frac{\theta}{2}$
 
-> Great circle distance gives the shortest distance between two points on a sphere, with <0.5% error on latitude and <0.2% error on longitude [4]
+> Great circle distance gives the shortest distance between two points on a sphere, with <0.5% error on latitude and <0.2% error on longitude [^4]
 
 ## 2.5 Graph representation of local suburb:
 
@@ -196,6 +196,14 @@ As explained in sections 1.3-1.5, the CH (Contraction Hierarchies) algorithm, ap
 
 ## Final Performance comparison:
 
-**A\*:** The time complexity of A* is bounded by 𝑂(𝑏^d) (b is branching factor and d is the depth) in the case of an unbounded search-space (previously mentioned to cause A* to be incomplete). In practical applications however, given an appropriately admissible heuristic and a suitable search space, A* is able to utilise the sense of direction to trim away many of the exponentially escaping branches that would have otherwise been expanded. The effective branching factor is a way to classify how effective the heuristic is and results in classifying an A* search with an admissible heuristic as in the order O(b\*)^𝑑. [1].
+**A\*:** The time complexity of A* is bounded by 𝑂(𝑏^d) (b is branching factor and d is the depth) in the case of an unbounded search-space (previously mentioned to cause A* to be incomplete). In practical applications however, given an appropriately admissible heuristic and a suitable search space, A* is able to utilise the sense of direction to trim away many of the exponentially escaping branches that would have otherwise been expanded. The effective branching factor is a way to classify how effective the heuristic is and results in classifying an A* search with an admissible heuristic as in the order O(b\*)^𝑑. [^1].
 **Contraction Hierarchies:**
 Due to the overwhelming number of variations in approaches to pre-processing and querying overlay graphs, the performance of contraction hierarchies can be difficult to categorise. For my implementation, the runtime is equally difficult to capture due to the number of steps involved in the process.
+
+[^1]: Stuart Jonathan Russell, P. Norvig, and E. Al, Artificial intelligence : a modern approach. Boston: Pearson, Cop, 2010, pp. 93–94.
+
+[^2]: J. Lazarsfeld, “Core Components of CH,” Contraction Hierarchies Guide, 2018. https://jlazarsfeld.github.io/ch.150.project/sections/ (accessed Apr. 27, 2023).
+
+[^3]: R. Geisberger, P. Sanders, D. Schultes, and C. Vetter, “Exact Routing in Large Road Networks Using Contraction Hierarchies,” Transportation Science, vol. 46, no. 3, pp. 388–404, Aug. 2012, doi: https://doi.org/10.1287/trsc.1110.0401
+
+[^4]: Admiralty manual of navigation. Great Britain: The Stationery Office, 1987, p. 10.
