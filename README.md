@@ -1,8 +1,31 @@
 # Contraction Hierarchies
 
+![fig8](https://github.com/user-attachments/assets/0fdb35b5-974a-4536-915e-3bb213b0732f)
+
 The objective of this project was to investigate informed or heuristic search strategies on a search space modelled after a real-life road network with the specific caveat that the agent be represented as someone inhibited by a wheelchair in their ability to traverse said network. The project is aimed at exploring various forms of heuristics and how their properties can affect the implementation of the common A\* heuristic search algorithm.
 
 I also researched alternative methods for network-style pathfinding solutions; in particular, those which find common deployment in real-world scenarios for their marked improvement in runtime query costs for end users. To this end, I decided to implement and gauge the performance of the Contraction Hierarchies algorithm.
+
+# Usage
+
+This contraction hierarchies implementation depends on the following:
+
+- `python 3.10.11`
+- `haversine 2.8.0`
+
+If you have conda installed on your system you can simply run the following:
+
+```sh
+conda create -y -n ch_py python=3.10.11 pip
+
+conda activate ch_py
+
+pip install haversine==2.8.0
+
+
+# run contraction hierarchies
+python main.py
+```
 
 ## 1.1 Informed / Heuristic Search
 
@@ -55,14 +78,16 @@ Once the complete searches are finished, the solution is found by taking the min
 
 My initial approach to modelling my local suburb as a network graph used OSM (Open Street Maps) data downloaded and translated to a graph through the python NetworkX interface layer OSMNX. Wheelchair accessibility data is well-supported by the OSM architecture. With custom filters applied when fetching the map, way data (ways being the OSM equivalent to edges) can be configured to include any of a wide list of ‘tags’
 
-<INSERT FIG 1 HERE>
+![fig1](https://github.com/user-attachments/assets/20acc7b1-869b-4351-9b78-b6475af6606f)
 
 <div align="center">
   <b>Figure. 1</b> OSMNX data import and graph creation with custom way filters applied according to OSM wheelchair accessibility guidelines.
   <a href="https://wiki.openstreetmap.org/wiki/Wheelchair_routing">link</a>
 </div>
 
-<INSERT FIG 2 HERE>
+<br />
+
+![fig2](https://github.com/user-attachments/assets/cec30150-057d-444b-a918-d59ad6f2dfa5)
 
 <div align="center">
   <b>Figure. 2</b> OSMNX Network graph output for query "Frankston, Victoria" shown in fig 1.
@@ -70,11 +95,13 @@ My initial approach to modelling my local suburb as a network graph used OSM (Op
 
 While visually attractive and initially very promising, the implementation encountered some impassable bottlenecks when it came time to perform edge queries and reconstruct wheelchair accessible paths. This becomes immediately clear when we take a closer look at the data.
 
-<INSERT FIG 3 HERE>
+![fig3](https://github.com/user-attachments/assets/70814d4c-09e0-4a1b-9fed-4cdf07b46447)
 
 <div align="center">
   <b>Figure. 3</b> Summary statistics on edge Data Frame output by OSMNX.
 </div>
+
+<br />
 
 At 12,890 ways, the resulting graph is extremely dense, and yet simultaneously devoid of any meaningful data. Without considering road surface, which is likely the least impactful metric requested in the filters, the mean percentage of populated records was 1.67%.
 I was unable to resolve this issue; the sparsity of the data made it difficult to produce meaningful pathways, while the density of the overall graph made manual edge property insertion infeasible.
@@ -83,7 +110,7 @@ I was unable to resolve this issue; the sparsity of the data made it difficult t
 
 I decided to implement the graph, node, and edge data structures from scratch, ensuring consistency in style and behaviour.
 
-<INSERT FIG 4 HERE>
+![fig4](https://github.com/user-attachments/assets/ab7550ff-5da4-4bb9-a50f-7cd52c342467)
 
 <div align="center">
   <b>Figure. 4</b> Custom python graph, node and edge classes attribute and method overview.</div>
@@ -102,7 +129,7 @@ $$f(n) = g(n) + h(n)$$
 
 Python’s built-in min-heap Priority Queue allows for simple prioritisation of appending to the frontier those nodes which minimise $f(n)$. With that, the complete algorithm can be (only slightly) simplified and expressed as:
 
-<INSERT FIG 5 HERE>
+![fig5](https://github.com/user-attachments/assets/e9c41f06-75b7-46c1-9b20-766c8d12e3f9)
 
 <div align="center">
   <b>Figure. 5</b> Simplified A* search.
@@ -124,7 +151,7 @@ I evaluated the performance of A\* using three different heuristics:
 
 ## 2.5 Graph representation of local suburb:
 
-<INSERT FIG 6 HERE>
+![fig6](https://github.com/user-attachments/assets/ece9b31c-3298-40b2-a51a-c6e15402f6da)
 
 <div align="center">
   <b>Figure. 6</b> Abstract Representation of the graph data structure used for A* search algorithm. Latitude and Longitude coordinates in node objects reflect real positions of the
@@ -135,7 +162,7 @@ intersections, and edge weights are calculated using real distances (measured on
 
 Heuristic error was evaluated from nodes “A to AE” on the above graph with a real observed distance of 1.84𝑘𝑚.
 
-<INSERT FIG 7 HERE>
+![fig7](https://github.com/user-attachments/assets/b0e3fe94-e9ec-4486-a9cd-6a947ef69bc7)
 
 <div align="center">
   <b>Figure. 7</b> Error between heuristic distance predictions and measured values
@@ -161,7 +188,7 @@ As explained in sections 1.3-1.5, the CH (Contraction Hierarchies) algorithm, ap
 
 ## Result:
 
-<INSERT FIG 8 HERE>
+![fig8](https://github.com/user-attachments/assets/76c79b3a-9268-4188-845f-8fb58d76244b)
 
 <div align="center">
   <b>Figure. 8</b> Shows the resulting graph after applying 45 directional shortcuts during node contraction.
@@ -172,24 +199,3 @@ As explained in sections 1.3-1.5, the CH (Contraction Hierarchies) algorithm, ap
 **A\*:** The time complexity of A* is bounded by 𝑂(𝑏^d) (b is branching factor and d is the depth) in the case of an unbounded search-space (previously mentioned to cause A* to be incomplete). In practical applications however, given an appropriately admissible heuristic and a suitable search space, A* is able to utilise the sense of direction to trim away many of the exponentially escaping branches that would have otherwise been expanded. The effective branching factor is a way to classify how effective the heuristic is and results in classifying an A* search with an admissible heuristic as in the order O(b\*)^𝑑. [1].
 **Contraction Hierarchies:**
 Due to the overwhelming number of variations in approaches to pre-processing and querying overlay graphs, the performance of contraction hierarchies can be difficult to categorise. For my implementation, the runtime is equally difficult to capture due to the number of steps involved in the process.
-
-# Usage
-
-This contraction hierarchies implementation depends on the following:
-
-- `python 3.10.11`
-- `haversine 2.8.0`
-
-If you have conda installed on your system you can simply run the following:
-
-```sh
-conda create -y -n ch_py python=3.10.11 pip
-
-conda activate ch_py
-
-pip install haversine==2.8.0
-
-
-# run contraction hierarchies
-python main.py
-```
